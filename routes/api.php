@@ -13,7 +13,7 @@ use Illuminate\Http\Request;
 |
 */
 
-Route::middleware('auth:api')->get('/user', function (Request $request) {
+Route::middleware('api')->get('/user', function (Request $request) {
     return $request->user();
 });
 
@@ -22,4 +22,6 @@ Route::resource('sucursales', 'SucursalController');
 Route::resource('ordenes', 'OrdenController');
 
 Route::get('getAllRangos', 'OrdenController@getAllRangos');
+Route::get('getAllRangosEjecutados', 'OrdenController@getAllRangosEjecutados');
+Route::get('totalesServicio/{ejecutado?}', 'OrdenController@totalesServicio');
 Route::get('ejecutarOrden/{ordenId}', 'OrdenController@ejecutarOrden');

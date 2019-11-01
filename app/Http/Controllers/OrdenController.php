@@ -48,7 +48,7 @@ class OrdenController extends Controller
     {
         $orden = new Orden();
         $orden->no_serie = $request->get('noSerie');
-        $orden->fecha = Carbon::now()->format('Y-m-d h:m:s');
+        $orden->fecha = $request->get('fecha');
         $orden->cliente = $request->get('cliente');
         $orden->dir = $request->get('dir');
         $orden->ejecutado = false;
@@ -71,7 +71,10 @@ class OrdenController extends Controller
      */
     public function show($id)
     {
-        //
+        $orden = Orden::find($id);
+        $orden->sucursal = Sucursal::find($orden->sucursales_id)->name;
+        $orden->servicio = Service::find($orden->services_id)->name;
+        return response()->json($orden,200);
     }
 
     /**
@@ -94,7 +97,19 @@ class OrdenController extends Controller
      */
     public function update(Request $request, $id)
     {
-        //
+        $orden = Orden::find($id);
+        $orden->no_serie = $request->get('noSerie');
+        $orden->sucursales_id = $request->get('sucursal');
+        $orden->services_id = $request->get('servicio');
+        $orden->cliente = $request->get('cliente');
+        $orden->dir = $request->get('dir');
+        $orden->fecha = $request->get('fecha');
+
+        if($orden->save()){
+            return response()->json(true, 200);
+        }else{
+            return response()->json(false, 200);
+        }
     }
 
     /**
@@ -119,9 +134,9 @@ class OrdenController extends Controller
     /**
      * Get summary
      */
-    public function getDataRango($sucursal_id, $service_id)
+    public function getDataRango($sucursal_id, $service_id, $ejecutado = 0)
     {
-        $ordenes = Orden::where('ejecutado', 0)
+        $ordenes = Orden::where('ejecutado', $ejecutado)
             ->where('sucursales_id', $sucursal_id)
             ->where('services_id', $service_id)
             ->get();
@@ -168,6 +183,21 @@ class OrdenController extends Controller
         return response()->json($rangos, 200);
     }
 
+    public function getAllRangosEjecutados()
+    {
+        $sucursales = Sucursal::all();
+        $servicios = Service::all();
+        $rangos = array();
+
+        foreach ($servicios as $servicio) {
+            foreach ($sucursales as $sucursal) {
+                $rangos[$sucursal->id . '-' . $servicio->id] = $this->getDataRango($sucursal->id, $servicio->id, 1);
+            }
+        }
+
+        return response()->json($rangos, 200);
+    }
+
     public function ejecutarOrden($orden_id)
     {
         $orden = Orden::find($orden_id);
@@ -179,5 +209,45 @@ class OrdenController extends Controller
         }
 
         return response()->json(false, 500);
+    }
+
+    public function totalesServicio($ejecutado = 0)
+    {
+        $servicios = Service::all();
+        $totalesServicio = array();
+
+        foreach($servicios as $servicio){
+            $ordenes = Orden::where('ejecutado', $ejecutado)
+            ->where('services_id', $servicio->id)
+            ->get();
+
+            $rangos = array(
+                '0-10' => 0,
+                '11-30' => 0,
+                '31-90' => 0,
+                '91-180' => 0,
+                '>180' => 0
+            );
+
+            foreach ($ordenes as $orden) {
+                $dias = Carbon::now()->diffInDays($orden->fecha);
+
+                if ($dias < 10) {
+                    $rangos['0-10']++;
+                } elseif ($dias > 10 && $dias <= 30) {
+                    $rangos['11-30']++;
+                } elseif ($dias > 30 && $dias <= 90) {
+                    $rangos['31-90']++;
+                } elseif ($dias > 91 && $dias <= 180) {
+                    $rangos['91-180']++;
+                } else {
+                    $rangos['>180']++;
+                }
+            }
+
+            $totalesServicio[$servicio->id] = $rangos;
+        }
+
+        return $totalesServicio;
     }
 }

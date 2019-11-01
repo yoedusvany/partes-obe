@@ -36,7 +36,14 @@ class ServicesController extends Controller
      */
     public function store(Request $request)
     {
-        //
+        $servicio = new Service();
+        $servicio->name = $request->get('name');
+
+        if($servicio->save()){
+            return response()->json(true, 200);
+        }else{
+            return response()->json(false, 500);
+        }
     }
 
     /**
@@ -47,7 +54,13 @@ class ServicesController extends Controller
      */
     public function show($id)
     {
-        //
+        $servicio = Service::find($id);
+
+        if(!$servicio){
+            return response()->json(false, 500);
+        }else{
+            return response()->json($servicio, 200);
+        }
     }
 
     /**
@@ -70,7 +83,14 @@ class ServicesController extends Controller
      */
     public function update(Request $request, $id)
     {
-        //
+        $servicio = Service::find($id);
+        $servicio->name = $request->get('name');
+
+        if($servicio->save()){
+            return response()->json(true, 200);
+        }else{
+            return response()->json(false, 500);
+        }
     }
 
     /**
@@ -81,6 +101,12 @@ class ServicesController extends Controller
      */
     public function destroy($id)
     {
-        //
+        $servicio = Service::find($id);
+
+        if($servicio->delete()){
+            return response()->json(true, 200);
+        }else{
+            return response()->json(false, 500);
+        }
     }
 }

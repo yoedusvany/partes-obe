@@ -15,6 +15,10 @@
           <b-form-select id="input-s2" v-model="form.servicio" :options="optionsServicios"></b-form-select>
         </b-form-group>
 
+        <b-form-group id="input-group-s22" label="Fecha" label-for="input-s22">
+          <b-form-input :id="`type-date`" v-model="form.fecha" :type="type"></b-form-input>
+        </b-form-group>
+
         <!--NO DE SERIE-->
         <b-form-group id="input-group-1" label="No Serie" label-for="input-1">
           <b-form-input
@@ -61,12 +65,15 @@ export default {
     return {
       optionsSucursal: [],
       optionsServicios: [],
+      type: "date",
+      actualizar: false,
       form: {
         sucursal: null,
         servicio: null,
         noSerie: "",
         cliente: "",
-        dir: ""
+        dir: "",
+        fecha: ""
       },
 
       show: true
@@ -74,26 +81,58 @@ export default {
   },
   methods: {
     Regresar: function(event) {
-      this.$router.push({ path: "ordenes" });
+      this.$router.push("/ordenes");
     },
     onSubmit(evt) {
       evt.preventDefault();
 
-      axios.post(API_URL + "/api/ordenes", this.form).then(response => {
-        if (response) {
-          this.makeToast(
-            "success",
-            "Resultado de la operacion",
-            "Orden registrada"
-          );
-          this.$router.push("ordenes");
-        } else {
-          this.makeToast(
-            "danger",
-            "Resultado de la operacion",
-            "Ocurrio un error"
-          );
-        }
+      if (this.actualizar === 'false') {
+        axios.post(API_URL + "/api/ordenes", this.form).then(response => {
+          if (response) {
+            this.makeToast(
+              "success",
+              "Resultado de la operacion",
+              "Orden registrada"
+            );
+            this.$router.push("/ordenes");
+          } else {
+            this.makeToast(
+              "danger",
+              "Resultado de la operacion",
+              "Ocurrio un error"
+            );
+          }
+        });
+      } else {
+        axios.put(API_URL + "/api/ordenes/"+this.ordenId,
+        this.form,
+        ).then(response => {
+          if (response) {
+            this.makeToast(
+              "success",
+              "Resultado de la operacion",
+              "Orden actualizada correctamente"
+            );
+            this.$router.push("/ordenes");
+          } else {
+            this.makeToast(
+              "danger",
+              "Resultado de la operacion",
+              "Ocurrio un error"
+            );
+          }
+        });
+      }
+    },
+
+    getItem(ordenId) {
+      axios.get(API_URL + "/api/ordenes/" + ordenId).then(response => {
+        this.form.noSerie = response.data.no_serie;
+        this.form.cliente = response.data.cliente;
+        this.form.dir = response.data.dir;
+        this.form.fecha = response.data.fecha;
+        this.form.sucursal = response.data.sucursales_id;
+        this.form.servicio = response.data.services_id;
       });
     },
 
@@ -121,6 +160,13 @@ export default {
   },
 
   mounted() {
+    this.actualizar = this.$route.params.actualizar;
+    this.ordenId = this.$route.params.orden;
+
+    if (this.actualizar === "true") {
+      this.getItem(this.$route.params.orden);
+    }
+
     axios.get(API_URL + "/api/services").then(({ data }) => {
       data.forEach(element => {
         this.optionsServicios.push({
