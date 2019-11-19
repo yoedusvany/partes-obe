@@ -12,7 +12,7 @@
           <td v-bind:key="index" v-for="(value, index) in servicios">{{value.name}}</td>
         </tr>
 
-        <tr v-for="(value, index) in sucursales" :key="index">
+        <tr v-for="(value, index) in sucursales" :key="index" rowspan=5>
           <td>{{value.name}}</td>
           <td>
             <tr>0-10</tr>
@@ -95,13 +95,13 @@ export default {
     },
 
     getRangos: async function() {
-      axios.get(API_URL + "/api/getAllRangos").then(({ data }) => {
+      axios.get(API_URL + "/api/getAllRangosEjecutados").then(({ data }) => {
         this.rangos = data;
       });
     },
 
     getTotales: async function() {
-      await axios.get(API_URL + "/api/totalesServicio").then(({ data }) => {
+      await axios.get(API_URL + "/api/totalesServicio/"+1).then(({ data }) => {
         this.totales = data;
       });
 

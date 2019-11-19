@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Obe;
 use App\Sucursal;
 use Illuminate\Http\Request;
 
@@ -36,7 +37,15 @@ class SucursalController extends Controller
      */
     public function store(Request $request)
     {
-        //
+        $sucursal = new Sucursal();
+        $sucursal->name = $request->get('name');
+        $sucursal->obes_id = Obe::all()->first()->id;
+
+        if($sucursal->save()){
+            return response()->json(true, 200);
+        }else{
+            return response()->json(false, 500);
+        }
     }
 
     /**
@@ -47,7 +56,13 @@ class SucursalController extends Controller
      */
     public function show($id)
     {
-        //
+        $sucursal = Sucursal::find($id);
+
+        if($sucursal){
+            return response()->json($sucursal, 200);
+        }else{
+            return response()->json(false, 500);
+        }
     }
 
     /**
@@ -70,7 +85,14 @@ class SucursalController extends Controller
      */
     public function update(Request $request, $id)
     {
-        //
+        $sucursal = Sucursal::find($id);
+        $sucursal->name = $request->get('name');
+
+        if($sucursal->save()){
+            return response()->json(true, 200);
+        }else{
+            return response()->json(false, 500);
+        }
     }
 
     /**
@@ -81,6 +103,12 @@ class SucursalController extends Controller
      */
     public function destroy($id)
     {
-        //
+        $sucursal = Sucursal::find($id);
+
+        if($sucursal->delete()){
+            return response()->json(true, 200);
+        }else{
+            return response()->json(false, 500);
+        }
     }
 }

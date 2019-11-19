@@ -10,22 +10,25 @@
 | contains the "web" middleware group. Now create something great!
 |
 */
-/*
+
+
 Route::get('/', function () {
     return view('welcome');
 });
 
 
-Route::resource('obes', 'ObeController');
-
-
 Auth::routes();
 
 Route::get('/home', 'HomeController@index')->name('home');
-*/
 
-Route::get('/{any}', 'SpaController@index')->where('any', '.*');
+
+
+Route::get('/spa', 'SpaController@index')->name('spa');
 
 
 
 //Route::get('/resumen/{sucursal_id}/{service_id}', 'OrdenController@resumen');
+
+Auth::routes();
+
+Route::get('/home', 'HomeController@index')->name('home');
