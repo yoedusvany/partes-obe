@@ -81,22 +81,13 @@ export default {
         { key: "actions", label: "Actions" }
       ],
 
-      /*fields: [
-          'no_serie',
-          'fecha',
-          'cliente',
-          'dir',
-          'sucursal',
-          'servicio',
-          'dias'
-      ],*/
       items: []
     };
   },
 
   methods: {
     Adicionar: function(event) {
-      this.$router.push({ path: "orden-add" });
+      this.$router.push("/orden-add/false");
     },
     rowClass(item, type) {
       if (!item) return;
@@ -107,7 +98,7 @@ export default {
     },
 
     update(item, index, button) {
-      this.$router.push({ path: "orden-add" });
+      this.$router.push("/orden-add/true/"+item.id);
 
     },
     remove(item, index, button) {

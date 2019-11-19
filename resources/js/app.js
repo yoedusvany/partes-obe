@@ -54,7 +54,7 @@ const router = new VueRouter({
             component: Ordenes,
         },
         {
-            path: '/orden-add',
+            path: '/orden-add/:actualizar?/:orden?',
             name: 'orden-add',
             component: OrdenAdd,
         },

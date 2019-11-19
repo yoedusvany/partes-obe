@@ -48,7 +48,7 @@ class OrdenController extends Controller
     {
         $orden = new Orden();
         $orden->no_serie = $request->get('noSerie');
-        $orden->fecha = Carbon::now()->format('Y-m-d h:m:s');
+        $orden->fecha = $request->get('fecha');
         $orden->cliente = $request->get('cliente');
         $orden->dir = $request->get('dir');
         $orden->ejecutado = false;
@@ -71,7 +71,7 @@ class OrdenController extends Controller
      */
     public function show($id)
     {
-        //
+        return response::json(Orden::find($id),200);
     }
 
     /**
@@ -179,5 +179,45 @@ class OrdenController extends Controller
         }
 
         return response()->json(false, 500);
+    }
+
+    public function totalesServicio()
+    {
+        $servicios = Service::all();
+        $totalesServicio = array();
+
+        foreach($servicios as $servicio){
+            $ordenes = Orden::where('ejecutado', 0)
+            ->where('services_id', $servicio->id)
+            ->get();
+
+            $rangos = array(
+                '0-10' => 0,
+                '11-30' => 0,
+                '31-90' => 0,
+                '91-180' => 0,
+                '>180' => 0
+            );
+
+            foreach ($ordenes as $orden) {
+                $dias = Carbon::now()->diffInDays($orden->fecha);
+
+                if ($dias < 10) {
+                    $rangos['0-10']++;
+                } elseif ($dias > 10 && $dias <= 30) {
+                    $rangos['11-30']++;
+                } elseif ($dias > 30 && $dias <= 90) {
+                    $rangos['31-90']++;
+                } elseif ($dias > 91 && $dias <= 180) {
+                    $rangos['91-180']++;
+                } else {
+                    $rangos['>180']++;
+                }
+            }
+
+            $totalesServicio[$servicio->id] = $rangos;
+        }
+
+        return $totalesServicio;
     }
 }

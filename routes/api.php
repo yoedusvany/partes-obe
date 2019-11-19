@@ -22,4 +22,5 @@ Route::resource('sucursales', 'SucursalController');
 Route::resource('ordenes', 'OrdenController');
 
 Route::get('getAllRangos', 'OrdenController@getAllRangos');
+Route::get('totalesServicio', 'OrdenController@totalesServicio');
 Route::get('ejecutarOrden/{ordenId}', 'OrdenController@ejecutarOrden');

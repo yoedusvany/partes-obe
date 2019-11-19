@@ -15,6 +15,10 @@
           <b-form-select id="input-s2" v-model="form.servicio" :options="optionsServicios"></b-form-select>
         </b-form-group>
 
+        <b-form-group id="input-group-s22" label="Fecha" label-for="input-s22">
+          <b-form-input :id="`type-date`" v-model="form.fecha" :type="type"></b-form-input>
+        </b-form-group>
+
         <!--NO DE SERIE-->
         <b-form-group id="input-group-1" label="No Serie" label-for="input-1">
           <b-form-input
@@ -61,12 +65,15 @@ export default {
     return {
       optionsSucursal: [],
       optionsServicios: [],
+      type: "date",
+      actualizar : false,
       form: {
         sucursal: null,
         servicio: null,
         noSerie: "",
         cliente: "",
-        dir: ""
+        dir: "",
+        fecha: ""
       },
 
       show: true
@@ -74,7 +81,7 @@ export default {
   },
   methods: {
     Regresar: function(event) {
-      this.$router.push({ path: "ordenes" });
+      this.$router.push("/ordenes");
     },
     onSubmit(evt) {
       evt.preventDefault();
@@ -94,6 +101,20 @@ export default {
             "Ocurrio un error"
           );
         }
+      });
+    },
+
+    getItem(ordenId){
+      axios.get(API_URL + "/api/ordenes/"+ordenId).then(response => {
+        console.log(response);
+        
+        this.form.noSerie = item.noSerie;
+        this.form.cliente = item.cliente;
+        this.form.dir = item.dir;
+        this.form.cliente = item.cliente;
+        this.form.fecha = item.fecha;
+        this.form.sucursal = item.sucursal;
+        this.form.servicio = item.servicio;
       });
     },
 
@@ -121,6 +142,16 @@ export default {
   },
 
   mounted() {
+    this.actualizar = this.$route.query.actualizar;
+
+    console.log(this.$route.query.orden);
+    
+
+    if(this.actualizar === "true"){
+      this.getItem(this.$route.query.orden);
+    }
+
+
     axios.get(API_URL + "/api/services").then(({ data }) => {
       data.forEach(element => {
         this.optionsServicios.push({
